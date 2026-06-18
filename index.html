@@ -1,124 +1,695 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to Litralson's webpage!!</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Litralson Eluvathingal</title>
+<link rel="icon" type="image/x-icon" href="images/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+img { display: block; max-width: 100%; height: auto; }
+
+/* ── tokens — slime mould palette ── */
+:root {
+  --ink:      #1a1814;  /* warm near-black */
+  --ink2:     #4a4640;  /* warm mid-grey for body text */
+  --ink3:     #8a8278;  /* warm light-grey for captions */
+  --page:     #faf8f3;  /* warm off-white, like dried agar */
+  --surface:  #f2ede3;  /* warm cream */
+  --surface2: #e8e0d0;  /* slightly deeper cream */
+  --accent:   #a06800;  /* slime mould amber — passes AA contrast on --page */
+  --accent2:  #5c7830;  /* muted olive-green — the substrate */
+  --rule:     rgba(0,0,0,0.09);
+  --serif:    'Lora', Georgia, serif;
+  --sans:     'Inter', system-ui, sans-serif;
+  --col:      680px;
+  --wide:     900px;
+  --pad-x:    clamp(1.25rem, 5vw, 3rem);
+}
+
+/* ── base ── */
+html { font-size: 18px; scroll-behavior: smooth; }
+body {
+  font-family: var(--serif);
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--ink);
+  background: var(--page);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ════════════════════════════════════════
+   NAV
+════════════════════════════════════════ */
+.nav-wrap {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #110f08;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.nav-inner {
+  max-width: var(--wide);
+  margin: 0 auto;
+  padding: 0 var(--pad-x);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 52px;
+}
+.nav-wordmark {
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: rgba(255,255,255,0.88);
+  text-decoration: none;
+  letter-spacing: 0.01em;
+  flex-shrink: 0;
+}
+.nav-wordmark em {
+  font-style: italic;
+  color: rgba(220,165,60,0.92);
+}
+
+/* nav links */
+nav ul {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 3vw, 2rem);
+}
+nav ul li { position: relative; }
+nav ul li a,
+nav ul li button {
+  font-family: var(--sans);
+  font-size: 0.694rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: color 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+nav ul li a:hover,
+nav ul li button:hover { color: rgba(255,255,255,0.92); }
+nav ul li a.active   { color: rgba(255,255,255,0.92); }
+
+/* chevron on articles button */
+nav ul li button::after {
+  content: '';
+  display: inline-block;
+  width: 0; height: 0;
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+  border-top: 4px solid currentColor;
+  transition: transform 0.18s;
+  margin-top: 1px;
+}
+nav ul li button[aria-expanded="true"]::after { transform: rotate(180deg); }
+
+/* hamburger toggle — hidden on desktop */
+.nav-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: rgba(255,255,255,0.75);
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+}
+
+/* dropdown */
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  min-width: 230px;
+  background: #fff;
+  border: 0.5px solid rgba(0,0,0,0.12);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.13);
+  list-style: none;
+  padding: 6px 0;
+  z-index: 9999;
+}
+.dropdown-menu li { padding: 0; }
+.dropdown-menu a {
+  display: block;
+  padding: 10px 18px;
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  text-decoration: none;
+  text-transform: none;
+  white-space: nowrap;
+  transition: background 0.12s;
+}
+.dropdown-menu a:hover { background: var(--surface); }
+.dropdown-menu .article-tag {
+  display: block;
+  font-size: 0.65rem;
+  color: var(--ink3);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* ── mobile nav ── */
+@media (max-width: 640px) {
+  .nav-toggle { display: block; }
+  nav {
+    display: none;
+    position: absolute;
+    top: 52px;
+    left: 0; right: 0;
+    background: #110f08;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    padding: 1rem var(--pad-x) 1.25rem;
+  }
+  nav.open { display: block; }
+  nav ul { flex-direction: column; align-items: flex-start; gap: 1rem; }
+  .dropdown-menu {
+    position: static;
+    box-shadow: none;
+    border: none;
+    border-left: 2px solid rgba(255,255,255,0.12);
+    border-radius: 0;
+    background: transparent;
+    padding: 4px 0 4px 12px;
+    margin-top: 6px;
+  }
+  .dropdown-menu a { color: rgba(255,255,255,0.55); padding: 6px 0; }
+  .dropdown-menu a:hover { background: transparent; color: rgba(255,255,255,0.9); }
+  .dropdown-menu .article-tag { color: rgba(255,255,255,0.32); }
+}
+
+/* ════════════════════════════════════════
+   HERO
+════════════════════════════════════════ */
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(3.5rem, 9vw, 6rem) var(--pad-x) clamp(2.5rem, 6vw, 4rem);
+  background: #110f08;
+  isolation: isolate;
+}
+.hero::before, .hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.hero::before {
+  background:
+    radial-gradient(ellipse 130% 90% at 15% 65%, rgba(180,120,0,0.45) 0%, transparent 58%),
+    radial-gradient(ellipse 90% 70%  at 82% 25%, rgba(100,130,40,0.35) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 55%  at 55% 85%, rgba(200,140,0,0.28) 0%, transparent 50%);
+  z-index: 0;
+}
+.hero::after {
+  background:
+    radial-gradient(ellipse 55% 40% at 72% 68%, rgba(220,170,0,0.14) 0%, transparent 55%),
+    radial-gradient(ellipse 45% 35% at 28% 18%, rgba(160,100,0,0.12) 0%, transparent 50%);
+  z-index: 0;
+}
+.hero-inner {
+  position: relative;
+  z-index: 1;
+  max-width: var(--wide);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: clamp(2rem, 5vw, 4rem);
+}
+.hero-photo {
+  flex-shrink: 0;
+  width: clamp(90px, 14vw, 140px);
+  height: clamp(90px, 14vw, 140px);
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center top;
+  border: 2px solid rgba(255,255,255,0.15);
+  filter: grayscale(15%);
+}
+.hero-text { flex: 1; min-width: 0; }
+.hero-eyebrow {
+  font-family: var(--sans);
+  font-size: 0.694rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.42);
+  margin-bottom: 0.75rem;
+}
+.hero h1 {
+  font-family: var(--serif);
+  font-size: clamp(1.7rem, 5vw, 3rem);
+  font-weight: 400;
+  line-height: 1.12;
+  color: #fff;
+  margin-bottom: 0.9rem;
+}
+.hero h1 em {
+  font-style: italic;
+  color: rgba(230,175,60,0.95);
+}
+.hero-lede {
+  font-family: var(--sans);
+  font-size: clamp(0.8rem, 1.8vw, 0.9rem);
+  line-height: 1.65;
+  color: rgba(255,255,255,0.52);
+  max-width: 56ch;
+}
+@media (max-width: 520px) {
+  .hero-inner { flex-direction: column; align-items: flex-start; gap: 1.25rem; }
+}
+
+/* ════════════════════════════════════════
+   PAGE WRAPPER
+════════════════════════════════════════ */
+.page {
+  max-width: var(--wide);
+  margin: 0 auto;
+  padding: 0 var(--pad-x);
+}
+
+/* ════════════════════════════════════════
+   SHARED SECTION CHROME
+════════════════════════════════════════ */
+.section-eyebrow {
+  font-family: var(--sans);
+  font-size: 0.694rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  display: block;
+  margin-bottom: 0.5rem;
+}
+h2.section-title {
+  font-family: var(--serif);
+  font-size: clamp(1.3rem, 3vw, 1.75rem);
+  font-weight: 400;
+  line-height: 1.25;
+  color: var(--ink);
+  margin-bottom: 1.5rem;
+}
+.section-divider {
+  border: none;
+  border-top: 1px solid var(--rule);
+  margin: 3rem 0;
+}
+
+/* ════════════════════════════════════════
+   ABOUT
+════════════════════════════════════════ */
+#about {
+  padding: clamp(2.5rem, 6vw, 4rem) 0 0;
+  max-width: var(--col);
+  margin: 0 auto;
+}
+#about p {
+  color: var(--ink2);
+  font-size: 1rem;
+  line-height: 1.85;
+  margin-bottom: 1.3rem;
+}
+#about p:last-child { margin-bottom: 0; }
+
+/* ════════════════════════════════════════
+   PROJECTS
+════════════════════════════════════════ */
+#projects {
+  padding: 0;
+  max-width: var(--col);
+  margin: 0 auto;
+}
+.project-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.project-item {
+  padding: 2rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+.project-item:last-child { border-bottom: none; }
+
+.project-title {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.4;
+  margin-bottom: 0.35rem;
+}
+.project-title em { font-style: italic; font-weight: 400; }
+
+.project-keywords {
+  font-family: var(--sans);
+  font-size: 0.694rem;
+  letter-spacing: 0.06em;
+  color: var(--ink3);
+  text-transform: uppercase;
+  margin-bottom: 0.85rem;
+}
+
+.project-body {
+  font-family: var(--sans);
+  font-size: 0.875rem;
+  line-height: 1.75;
+  color: var(--ink2);
+  margin-bottom: 1rem;
+}
+.project-body:last-child { margin-bottom: 0; }
+
+.project-body a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.project-img {
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin: 1.25rem 0 0.5rem;
+  object-fit: cover;
+}
+.project-img.landscape { max-height: 280px; object-fit: cover; }
+
+.img-caption {
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  color: var(--ink3);
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.project-pub {
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  line-height: 1.65;
+  color: var(--ink2);
+  background: var(--surface);
+  border-left: 2px solid var(--accent);
+  padding: 0.75rem 1rem;
+  border-radius: 0 4px 4px 0;
+  margin-top: 1rem;
+}
+.project-pub cite { font-style: italic; }
+.project-pub a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  word-break: break-all;
+}
+
+/* ════════════════════════════════════════
+   CONTACT
+════════════════════════════════════════ */
+#contact {
+  padding: 0 0 clamp(2.5rem, 6vw, 4rem);
+  max-width: var(--col);
+  margin: 0 auto;
+}
+.contact-links {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.contact-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  color: var(--ink2);
+  transition: color 0.15s;
+}
+.contact-link:hover { color: var(--accent); }
+.contact-link img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+/* ════════════════════════════════════════
+   FOOTER
+════════════════════════════════════════ */
+footer {
+  background: var(--surface);
+  border-top: 1px solid var(--rule);
+  padding: 1.75rem var(--pad-x);
+  text-align: center;
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  color: var(--ink3);
+  line-height: 1.7;
+}
+
+/* ── reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+</style>
 </head>
 <body>
 
-    <div class="nav-container">
-        <button class="nav-toggle" onclick="toggleMenu()">☰</button>
-        <nav id="nav-bar">
-            <ul>
-            <li><a href="#about">ABOUT</a> </li>
-            <li><a href="#projects">PROJECTS</a></li>
-            <li><a href="#contact">CONTACT </a></li>
-            <li><a href="carpenter-bee-wings.html">ARTICLES</a></li>
-            <li><a href="https://drive.google.com/file/d/1162V9njZcpqt1vKQeqmyzYNek1w9JffF/view?usp=sharing">CV</a></li>
-            </ul>
-        </nav>
-      </div>
-      <script src="script.js"></script> 
-    <main>
-        <section id="about">
-            <h1>About Me </h1>
-            <img src="images/photo_2.jpg" alt="My Photo" width="200" height=auto  class="rounded centered">
+<!-- ════════════════════════════════════════
+     NAV
+════════════════════════════════════════ -->
+<div class="nav-wrap">
+  <div class="nav-inner">
+    <a class="nav-wordmark" href="#">Litralson <em>E.</em></a>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+    <nav id="nav-bar">
+      <ul>
+        <li><a href="#about">About</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li>
+          <button
+            id="articles-btn"
+            aria-haspopup="true"
+            aria-expanded="false"
+            aria-controls="articles-menu"
+            onclick="toggleDropdown(event)"
+          >Articles</button>
+          <ul class="dropdown-menu" id="articles-menu" role="menu">
+            <li role="none">
+              <a href="carpenter-bee-wings.html" role="menuitem">
+                Carpenter Bees &amp; Soap Bubbles
+                <span class="article-tag">Nature · Physics</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+        <li><a href="https://drive.google.com/file/d/1162V9njZcpqt1vKQeqmyzYNek1w9JffF/view?usp=sharing" target="_blank" rel="noopener">CV</a></li>
+      </ul>
+    </nav>
+  </div>
+</div>
 
-            <p>Hello there, <br>
-                I'm Litralson Eluvathingal (he/him).
-                 I graduated from the Indian Institute of Science (IISc), Bengaluru with a Bachelor's and Master's in Biology (BS-MS), 
-                 which is a research-oriented interdisciplinary program. During this period, my research focus was on cell biology, exploring how organelle morphology 
-                 changes in different physiological conditions and how receptor protein distribution affects signalling dynamics, with the help of super-resolution 
-                 microscopy. I'm currently interested in emergent properties in 
-                 biological systems like pattern formation (Reaction-Diffusion systems), collective behaviour, and cellular intelligence.
-                  <br> <br>
-                 As a natural extension of my interest in emergent properties in biological systems, I’m also fascinated by the bottom-up approach to 
-                 designing systems where the individual interacting components are designed and their interactions give rise to properties 
-                 of the system. I do realise the inherent limitation of these systems of optimising for local conditions 
-                 but they are fascinating nonetheless. The transition from local to global optimisation in these systems is something
-                 that I would like to explore further. In my free time, I enjoy reading books and photographing life around me (mostly insects and occasionally humans). 
-                 I also appreciate well-thought-out designs, whether in information design, architecture, institutional structure,
-                 or consumer products.
-             </p>
-        </section>
-        <section id="projects">
-            <h1>Projects</h1>
-            <ul>
-                <li><b1>Slime Mold (<i>Physarum polycephalum</i>): Emergent Networks for Urban Planning</b1> <br>
-                    Keywords:<i> Physics of Life, Physarum polycephalum, Emergent Properties, & Urban Planning.</i> <br>
-                     Through this project, I tried to replicate the work of  <i> A. Tero et al 2010 </i> where showed 
-                     the networks formed by slime molds are similar in efficiency, cost, and fault tolerance
-                     to that of the Tokyo rail network. Here I wanted to see how slime mold optimises the 
-                     connections between the proposed Namma Metro and Suburban stations in Bengaluru. 
-                     This was developed with <u><b><a href="https://www.icts.res.in/event/sci560">TIFR-ICTS </a></b></u>for 
-                     the Sci560 exhibition season at Science Gallery Bengaluru (SGB).</li> <br>
-                     <img src="images/blr_SM_map_Tray_3_composite_image.jpg" alt="SM Tray 3" width="900" height="300" class="centered"> <br>
-                     <i><b>Slime Mold - Bengaluru Map Experiment:</b> a) The reference map used for placing 
-                        the oats. This map was originally prepared by <a href="https://en.wikipedia.org/wiki/Bengaluru_Commuter_Rail#/media/File:NammaMetroUptoPh-3withKannada.png"><u>
-                            Captain Naveen Chandra, Praja RAAG</u></a>. b) After placing the oats at various Metro and Suburban Railway Stations, the slime mold was inoculated at the
-                            Nadaprabhu Kempegowda/Majestic Metro Station. c) The slime mold network after growing for ~ 6 days. 
-                     </i> <br>
-                    <img src="images/SGB_Lecture.jpg" alt="My Photo" width="462" height="347" class="centered rounded"><br>
-                    <i><b> SGB Mediator Training:</b>The talk given at SGB about the Bengaluru Map Experiment to the Mediators. Photo Credits: Disha Kuzhively</i> <br> <br>
-                <li><b> Autophagy: Simulating the Autophagosome Biogenesis</b>  <br>  
-                    Keywords: <i>Biophysics, Autophagy, & Molecular Dynamics Simulations.</i> <br>                                      
-                     We worked on large-scale molecular dynamics simulations of phagophore membranes with embedded LC3
-                     proteins that aimed to improve our understanding of macroautophagy. This process 
-                     helps to remove waste materials from cells. Through this project, we tried to decipher 
-                     the curvature-generating effects of LC3 proteins on Endoplasmic reticulum membranes. 
-                     The LC3 protein being investigated here gets embedded in the membrane after it gets 
-                     conjugated with phosphatidylethanolamine (PE) residue. The LC3 protein-PE complex can
-                     be thought of as a lipid with a huge head group and the clustering of them could 
-                     potentially result in the altering of the curvature of the membrane due to steric effects. <br>
-                     <a href="https://github.com/litralson/BUMPy_phagophore_builder"> <u><b> BUMPy Phagophore Builder:</b></u></a> 
-                     A modified version of <a href=https://pubs.acs.org/doi/abs/10.1021/acs.jctc.8b00765><u>BUMPy</u></a>
-                      Python package by Kevin J. Boyd for generating custom phagophore membane shapes. </li> <br>
-                <li><b>Notch Signalling Dynamics: Protein NanoDomains on Membranes </b> <br>  
-                    Keywords: <i>Monte Carlo Simulations, Cell Blender, M Cell, Reaction Diffusion Systems, Cell Biology, & Super-resolution Microscopy.</i> <br>
-                    I used Super-Resolution Microscopy (STORM) to map out the Notch-1 
-                    distribution on a cell membrane and quantified its properties.  
-                    Then we simulated the Notch-1 distribution on a cell membrane
-                     using a reaction-diffusion model and
-                    analysed how that affected the signalling dynamics.  </li> <br>
-                <li><b> Mitochondrial Dynamics: Nanoscale Mapping of Mitochondrial Topography in Heterologous Cell Lines</b> <br>
-                    Keywords: <i>SRRF, Super-resolution Microscopy, Mitochondrial fission and fusion, Image processing, & CRISPRi</i> <br>
-                    Quantifying mitochondrial volume in Neuro-2a cells using Super-resolution microscopy (SRRF) and 3-D rendering at different 
-                    levels of expression of SIRT3. At different expression levels of SIRT3, we observed differences 
-                    in the distribution of the amount of punctate, intermediate, and filamentous mitochondria. 
-                    This project involved designing primers, plasmid cloning, CRISPRi, plasmid transfection,
-                    immunocytochemistry, and image processing.
-                    </li> <br>
-                <li><b>Lysosome Biogenesis: Investigating the Role of Golgi Apparatus</b><br>
-                     Keywords:<i>Lysosome biogenesis, SRRF (Super-Resolution Radial Fluctuations), Structured Illumination Microscopy, 
-                        Keratinocytes, Image processing, & 3D Rendering</i> <br>
-                        Through this project, we investigated the role of the Golgi apparatus in the maturation of specialised lysosomes in 
-                        differentiated keratinocytes. I was involved in image acquisition and 3D rendering of organelles to observe whether 
-                        there was any contact between these organelles and later to see the extent of these contacts. This involved using 
-                        microscopy techniques like SRRF (Super Resolution and Radial Fluctuations) and SIM (Structured Illumination Microscopy).<br><br>
-                        Sarmistha Mahanty, Ptissam Bergam, Vivek Belapurkar, Litralson Eluvathingal, Nikita Gupta, Bruno Goud, Deepak Nair, Graça Raposo & Subba Rao Gangi (2024).<br>
-                        <i> Biogenesis of specialised lysosomes in differentiated keratinocytes relies on close apposition with the Golgi apparatus. Cell Death & Disease, 15(7), 496.
-                        </i><br>
-                        DOI:<a href="https://doi.org/10.1038/s41419-024-06710-w "> <u>https://doi.org/10.1038/s41419-024-06710-w  </u></a>
-                    </li>
-    
-            </ul>
-        </section>
-        <section id="contact">
-            <h1>Contact Me</h1>
-            <p> 
-                <a href="mailto:litralson.eluvathingal@gmail.com"> <img src="images/email.png" width="20" height=auto  class="rounded">  .   </a>
-               <a  href="https://www.linkedin.com/in/litralson"> <img src="images/linkedin_logo.png" width="20" height=auto  class="rounded">      .   </a>
-                <a  href="https://x.com/Litralson"> <img src="images/twitter_x_logo.png" width="20" height=auto  class="rounded">    .      </a>          
-                <a  href="https://www.instagram.com/litralson/"> <img src="images/insta-logo.png" width="20" height=auto  class="rounded"> </a>
-            </p>
-        </section>
-    </main>
-    <footer>
-        Last Updated on [24/11/2024]
-        <p>Copyright &copy; Litralson</p>
-    </footer>
+<!-- ════════════════════════════════════════
+     HERO
+════════════════════════════════════════ -->
+<header class="hero" role="banner">
+  <div class="hero-inner">
+    <img class="hero-photo" src="images/photo_2.jpg" alt="Portrait of Litralson Eluvathingal">
+    <div class="hero-text">
+      <p class="hero-eyebrow">Biologist &amp; Science Communicator · Bengaluru</p>
+      <h1>Litralson<br><em>Eluvathingal</em></h1>
+      <p class="hero-lede">Cell biology, emergent systems, and the physics hiding inside nature. IISc BS-MS graduate interested in pattern formation, collective behaviour, and how local rules give rise to global order.</p>
+    </div>
+  </div>
+</header>
+
+<!-- ════════════════════════════════════════
+     MAIN CONTENT
+════════════════════════════════════════ -->
+<div class="page">
+
+  <!-- ── About ── -->
+  <section id="about" aria-labelledby="about-heading">
+    <span class="section-eyebrow">About me</span>
+    <h2 class="section-title" id="about-heading">Hello there</h2>
+
+    <p>I'm Litralson Eluvathingal (he/him). I graduated from the Indian Institute of Science (IISc), Bengaluru with a Bachelor's and Master's in Biology (BS-MS), a research-oriented interdisciplinary programme. My research focused on cell biology — exploring how organelle morphology changes under different physiological conditions, and how receptor protein distribution affects signalling dynamics, using super-resolution microscopy.</p>
+
+    <p>I'm currently interested in emergent properties in biological systems: pattern formation through reaction-diffusion systems, collective behaviour, and cellular intelligence. As a natural extension, I'm also drawn to the bottom-up approach to designing systems, where interactions between individual components give rise to system-level properties. The transition from local to global optimisation is something I'd like to explore further.</p>
+
+    <p>In my free time, I enjoy reading and photographing life around me — mostly insects, occasionally humans. I also appreciate well-thought-out design, whether in information design, architecture, institutional structure, or consumer products.</p>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ── Projects ── -->
+  <section id="projects" aria-labelledby="projects-heading">
+    <span class="section-eyebrow">Research &amp; projects</span>
+    <h2 class="section-title" id="projects-heading">Selected work</h2>
+
+    <ul class="project-list">
+
+      <!-- 1. Slime Mold -->
+      <li class="project-item">
+        <p class="project-title">Slime Mold (<em>Physarum polycephalum</em>): Emergent Networks for Urban Planning</p>
+        <p class="project-keywords">Physics of Life · Physarum polycephalum · Emergent Properties · Urban Planning</p>
+        <p class="project-body">
+          Through this project, I tried to replicate the work of <em>A. Tero et al. 2010</em>, who showed that networks formed by slime moulds are similar in efficiency, cost, and fault tolerance to the Tokyo rail network. Here I wanted to see how slime mould optimises connections between the proposed Namma Metro and Suburban stations in Bengaluru. This was developed with <a href="https://www.icts.res.in/event/sci560" target="_blank" rel="noopener">TIFR-ICTS</a> for the Sci560 exhibition season at Science Gallery Bengaluru.
+        </p>
+        <img class="project-img landscape" src="images/blr_SM_map_Tray_3_composite_image.jpg" alt="Three-panel composite showing the reference Bengaluru metro map, oat placement, and the slime mould network after six days of growth">
+        <p class="img-caption"><strong>Slime Mould — Bengaluru Map Experiment.</strong> a) Reference map used for placing oats, originally prepared by Captain Naveen Chandra, Praja RAAG. b) Oats placed at Metro and Suburban Railway Stations; slime mould inoculated at Majestic Metro Station. c) The resulting network after ~6 days.</p>
+        <img class="project-img" src="images/SGB_Lecture.jpg" alt="Litralson giving a talk at Science Gallery Bengaluru about the slime mould experiment">
+        <p class="img-caption"><strong>SGB Mediator Training.</strong> Talk given at Science Gallery Bengaluru about the Bengaluru Map Experiment. Photo: Disha Kuzhively.</p>
+      </li>
+
+      <!-- 2. Autophagy -->
+      <li class="project-item">
+        <p class="project-title">Autophagy: Simulating Autophagosome Biogenesis</p>
+        <p class="project-keywords">Biophysics · Autophagy · Molecular Dynamics Simulations</p>
+        <p class="project-body">
+          We worked on large-scale molecular dynamics simulations of phagophore membranes with embedded LC3 proteins, aiming to improve our understanding of macroautophagy — the process cells use to remove waste materials. We tried to decipher the curvature-generating effects of LC3 proteins on endoplasmic reticulum membranes. The LC3-PE complex can be thought of as a lipid with a large head group; clustering of these complexes could alter membrane curvature through steric effects.
+        </p>
+        <p class="project-body">
+          <a href="https://github.com/litralson/BUMPy_phagophore_builder" target="_blank" rel="noopener"><strong>BUMPy Phagophore Builder</strong></a> — a modified version of the <a href="https://pubs.acs.org/doi/abs/10.1021/acs.jctc.8b00765" target="_blank" rel="noopener">BUMPy</a> Python package by Kevin J. Boyd, for generating custom phagophore membrane shapes.
+        </p>
+      </li>
+
+      <!-- 3. Notch -->
+      <li class="project-item">
+        <p class="project-title">Notch Signalling Dynamics: Protein NanoDomains on Membranes</p>
+        <p class="project-keywords">Monte Carlo Simulations · Cell Blender · MCell · Reaction-Diffusion Systems · Super-resolution Microscopy</p>
+        <p class="project-body">
+          I used Super-Resolution Microscopy (STORM) to map Notch-1 distribution on a cell membrane and quantified its spatial properties. We then simulated that distribution using a reaction-diffusion model and analysed how nanodomain arrangement affects signalling dynamics.
+        </p>
+      </li>
+
+      <!-- 4. Mitochondria -->
+      <li class="project-item">
+        <p class="project-title">Mitochondrial Dynamics: Nanoscale Mapping of Mitochondrial Topography in Heterologous Cell Lines</p>
+        <p class="project-keywords">SRRF · Super-resolution Microscopy · Mitochondrial Fission &amp; Fusion · Image Processing · CRISPRi</p>
+        <p class="project-body">
+          Quantified mitochondrial volume in Neuro-2a cells using SRRF and 3D rendering at different SIRT3 expression levels. We observed differences in the distribution of punctate, intermediate, and filamentous mitochondria across expression conditions. The project spanned primer design, plasmid cloning, CRISPRi, transfection, immunocytochemistry, and image processing.
+        </p>
+      </li>
+
+      <!-- 5. Lysosome -->
+      <li class="project-item">
+        <p class="project-title">Lysosome Biogenesis: Investigating the Role of the Golgi Apparatus</p>
+        <p class="project-keywords">Lysosome Biogenesis · SRRF · Structured Illumination Microscopy · Keratinocytes · 3D Rendering</p>
+        <p class="project-body">
+          We investigated the role of the Golgi apparatus in the maturation of specialised lysosomes in differentiated keratinocytes. I was involved in image acquisition and 3D rendering of organelles to observe and quantify contact sites between these organelles, using SRRF and SIM.
+        </p>
+        <div class="project-pub">
+          Sarmistha Mahanty, Ptissam Bergam, Vivek Belapurkar, Litralson Eluvathingal, Nikita Gupta, Bruno Goud, Deepak Nair, Graça Raposo &amp; Subba Rao Gangi (2024). <cite>Biogenesis of specialised lysosomes in differentiated keratinocytes relies on close apposition with the Golgi apparatus.</cite> Cell Death &amp; Disease, 15(7), 496.<br>
+          DOI: <a href="https://doi.org/10.1038/s41419-024-06710-w" target="_blank" rel="noopener">https://doi.org/10.1038/s41419-024-06710-w</a>
+        </div>
+      </li>
+
+    </ul>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ── Contact ── -->
+  <section id="contact" aria-labelledby="contact-heading">
+    <span class="section-eyebrow">Get in touch</span>
+    <h2 class="section-title" id="contact-heading">Contact</h2>
+    <div class="contact-links">
+      <a class="contact-link" href="mailto:litralson.eluvathingal@gmail.com">
+        <img src="images/email.png" alt=""> Email
+      </a>
+      <a class="contact-link" href="https://www.linkedin.com/in/litralson" target="_blank" rel="noopener">
+        <img src="images/linkedin_logo.png" alt=""> LinkedIn
+      </a>
+      <a class="contact-link" href="https://x.com/Litralson" target="_blank" rel="noopener">
+        <img src="images/twitter_x_logo.png" alt=""> X / Twitter
+      </a>
+      <a class="contact-link" href="https://www.instagram.com/litralson/" target="_blank" rel="noopener">
+        <img src="images/insta-logo.png" alt=""> Instagram
+      </a>
+    </div>
+  </section>
+
+</div><!-- /.page -->
+
+<!-- ════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════ -->
+<footer>
+  <p>Last updated November 2024 &nbsp;·&nbsp; Copyright &copy; Litralson Eluvathingal</p>
+</footer>
+
+<!-- ════════════════════════════════════════
+     JS
+════════════════════════════════════════ -->
+<script>
+  /* ── hamburger ── */
+  var navToggle = document.getElementById('nav-toggle');
+  var navBar    = document.getElementById('nav-bar');
+  navToggle.addEventListener('click', function(e) {
+    e.stopPropagation();
+    var open = navBar.classList.toggle('open');
+    navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    navToggle.textContent = open ? '✕' : '☰';
+    if (!open) closeDropdown();
+  });
+
+  /* ── articles dropdown ── */
+  var articlesMenu = document.getElementById('articles-menu');
+  var articlesBtn  = document.getElementById('articles-btn');
+  articlesMenu.style.display = 'none';
+
+  function toggleDropdown(e) {
+    e.stopPropagation();
+    var hidden = articlesMenu.style.display === 'none';
+    articlesMenu.style.display = hidden ? 'block' : 'none';
+    articlesBtn.setAttribute('aria-expanded', hidden ? 'true' : 'false');
+  }
+  function closeDropdown() {
+    articlesMenu.style.display = 'none';
+    articlesBtn.setAttribute('aria-expanded', 'false');
+  }
+
+  /* close on outside click or Escape */
+  document.addEventListener('click', closeDropdown);
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') { closeDropdown(); navBar.classList.remove('open'); }
+  });
+
+  /* ── active nav link on scroll ── */
+  var sections = ['about','projects','contact'];
+  function onScroll() {
+    var scrollY = window.scrollY + 80;
+    sections.forEach(function(id) {
+      var el = document.getElementById(id);
+      var link = document.querySelector('nav a[href="#' + id + '"]');
+      if (!el || !link) return;
+      var inView = el.offsetTop <= scrollY && el.offsetTop + el.offsetHeight > scrollY;
+      link.classList.toggle('active', inView);
+    });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+</script>
 </body>
 </html>
