@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wave Interference Visualiser</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --bg-secondary: #f5f5f3;
+    --bg-canvas: #f9f9f8;
+    --text-primary: #1a1a18;
+    --text-secondary: #6b6b67;
+    --border: rgba(0,0,0,0.12);
+    --border-strong: rgba(0,0,0,0.2);
+    --blue: #378add;
+    --orange: #d85a30;
+    --green: #1d9e75;
+    --green-bg: #eaf3de;
+    --green-text: #3b6d11;
+    --red-bg: #fcebeb;
+    --red-text: #a32d2d;
+    --amber-bg: #faeeda;
+    --amber-text: #854f0b;
+    --purple-bg: #eeedfe;
+    --purple-text: #534ab7;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1a;
+      --bg-secondary: #252523;
+      --bg-canvas: #141412;
+      --text-primary: #f0efeb;
+      --text-secondary: #9a9994;
+      --border: rgba(255,255,255,0.1);
+      --border-strong: rgba(255,255,255,0.2);
+      --blue: #5ba3e8;
+      --orange: #e8784e;
+      --green: #2dbf8e;
+      --green-bg: #173404;
+      --green-text: #c0dd97;
+      --red-bg: #501313;
+      --red-text: #f09595;
+      --amber-bg: #412402;
+      --amber-text: #fac775;
+      --purple-bg: #26215c;
+      --purple-text: #afa9ec;
+    }
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 760px;
+  }
+
+  header {
+    margin-bottom: 1.5rem;
+  }
+
+  header h1 {
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: -0.3px;
+    margin-bottom: 4px;
+  }
+
+  header p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .canvas-wrap {
+    position: relative;
+    border-radius: var(--radius-lg);
+    border: 0.5px solid var(--border);
+    overflow: hidden;
+    background: var(--bg-canvas);
+    margin-bottom: 1.25rem;
+  }
+
+  canvas {
+    display: block;
+    width: 100%;
+  }
+
+  .mode-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-top: 0.5px solid var(--border);
+    background: var(--bg-secondary);
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .mode-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+
+  .mode-name span {
+    color: var(--text-primary);
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: var(--radius);
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .legend {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    padding: 10px 14px 0;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .legend-line {
+    width: 22px;
+    height: 2.5px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .legend-dashed {
+    width: 22px;
+    height: 0;
+    border-top: 2.5px dashed var(--orange);
+    flex-shrink: 0;
+  }
+
+  .controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 1rem;
+  }
+
+  @media (max-width: 520px) {
+    .controls { grid-template-columns: 1fr; }
+  }
+
+  .control-group {
+    background: var(--bg-secondary);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+  }
+
+  .control-group h3 {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+  }
+
+  .ctrl-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .ctrl-row:last-child { margin-bottom: 0; }
+
+  .ctrl-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    width: 72px;
+    flex-shrink: 0;
+  }
+
+  .ctrl-row input[type="range"] {
+    flex: 1;
+    min-width: 0;
+    height: 4px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--border-strong);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .ctrl-row input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--text-primary);
+    cursor: pointer;
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 1px var(--border-strong);
+  }
+
+  .ctrl-row input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--text-primary);
+    cursor: pointer;
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 1px var(--border-strong);
+  }
+
+  .ctrl-row input[type="number"] {
+    width: 56px;
+    flex-shrink: 0;
+    font-size: 12px;
+    font-family: inherit;
+    background: var(--bg);
+    color: var(--text-primary);
+    border: 0.5px solid var(--border-strong);
+    border-radius: var(--radius);
+    padding: 3px 6px;
+    text-align: right;
+    outline: none;
+    -moz-appearance: textfield;
+  }
+
+  .ctrl-row input[type="number"]::-webkit-inner-spin-button,
+  .ctrl-row input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+  }
+
+  .ctrl-row input[type="number"]:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 2px rgba(55,138,221,0.18);
+  }
+
+  .unit {
+    font-size: 11px;
+    color: var(--text-secondary);
+    width: 14px;
+    flex-shrink: 0;
+  }
+
+  .phase-control {
+    background: var(--bg-secondary);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+    margin-bottom: 1rem;
+  }
+
+  .phase-control h3 {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+  }
+
+  .phase-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .phase-row input[type="range"] {
+    flex: 1;
+    min-width: 0;
+    height: 4px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--border-strong);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .phase-row input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--text-primary);
+    cursor: pointer;
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 1px var(--border-strong);
+  }
+
+  .phase-row input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--text-primary);
+    cursor: pointer;
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 1px var(--border-strong);
+  }
+
+  .phase-row input[type="number"] {
+    width: 62px;
+    flex-shrink: 0;
+    font-size: 12px;
+    font-family: inherit;
+    background: var(--bg);
+    color: var(--text-primary);
+    border: 0.5px solid var(--border-strong);
+    border-radius: var(--radius);
+    padding: 3px 6px;
+    text-align: right;
+    outline: none;
+    -moz-appearance: textfield;
+  }
+
+  .phase-row input[type="number"]::-webkit-inner-spin-button,
+  .phase-row input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+  }
+
+  .phase-row input[type="number"]:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 2px rgba(55,138,221,0.18);
+  }
+
+  .presets {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .preset-btn {
+    font-size: 12px;
+    font-family: inherit;
+    background: var(--bg);
+    color: var(--text-primary);
+    border: 0.5px solid var(--border-strong);
+    border-radius: var(--radius);
+    padding: 5px 12px;
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+
+  .preset-btn:hover {
+    background: var(--bg-secondary);
+  }
+
+  .preset-btn:active {
+    transform: scale(0.97);
+  }
+
+  footer {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 0.5px solid var(--border);
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>Wave interference visualiser</h1>
+    <p>Adjust the controls below to explore how two waves combine. The green resultant wave shows their sum.</p>
+  </header>
+
+  <div class="canvas-wrap">
+    <div class="legend" style="padding:10px 14px 8px;">
+      <div class="legend-item"><div class="legend-line" style="background:var(--blue);"></div>Wave 1</div>
+      <div class="legend-item"><div class="legend-dashed"></div>Wave 2</div>
+      <div class="legend-item"><div class="legend-line" style="background:var(--green); height:3px;"></div>Resultant</div>
+    </div>
+    <canvas id="canvas" role="img" aria-label="Animated wave interference diagram showing wave 1, wave 2, and their resultant sum"></canvas>
+    <div class="mode-bar">
+      <div class="mode-name">Interference type: <span id="mode-name-text">Constructive</span></div>
+      <span class="badge" id="mode-badge" style="background:var(--green-bg);color:var(--green-text);">Constructive</span>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="control-group">
+      <h3>Wave 1 (blue)</h3>
+      <div class="ctrl-row">
+        <span class="ctrl-label">Amplitude</span>
+        <input type="range" id="a1" min="5" max="90" value="50" step="1">
+        <input type="number" id="a1n" min="5" max="90" value="50">
+        <span class="unit">px</span>
+      </div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">Frequency</span>
+        <input type="range" id="f1" min="0.5" max="6" value="2" step="0.5">
+        <input type="number" id="f1n" min="0.5" max="6" value="2" step="0.5">
+        <span class="unit">Hz</span>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <h3>Wave 2 (orange)</h3>
+      <div class="ctrl-row">
+        <span class="ctrl-label">Amplitude</span>
+        <input type="range" id="a2" min="5" max="90" value="50" step="1">
+        <input type="number" id="a2n" min="5" max="90" value="50">
+        <span class="unit">px</span>
+      </div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">Frequency</span>
+        <input type="range" id="f2" min="0.5" max="6" value="2" step="0.5">
+        <input type="number" id="f2n" min="0.5" max="6" value="2" step="0.5">
+        <span class="unit">Hz</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="phase-control">
+    <h3>Phase offset (wave 2 relative to wave 1)</h3>
+    <div class="phase-row">
+      <input type="range" id="ph" min="0" max="360" value="0" step="1">
+      <input type="number" id="phn" min="0" max="360" value="0" step="1">
+      <span class="unit">°</span>
+    </div>
+  </div>
+
+  <div class="control-group" style="margin-bottom:1rem;">
+    <h3>Presets</h3>
+    <div class="presets">
+      <button class="preset-btn" data-preset="constructive">Constructive</button>
+      <button class="preset-btn" data-preset="destructive">Destructive</button>
+      <button class="preset-btn" data-preset="partial">Partial (90°)</button>
+      <button class="preset-btn" data-preset="beat">Beat frequency</button>
+      <button class="preset-btn" data-preset="unequal">Unequal amplitudes</button>
+    </div>
+  </div>
+
+  <footer>
+    Constructive interference occurs when phase offset ≈ 0° and frequencies match — the waves reinforce each other.
+    Destructive interference occurs at ≈ 180° — they cancel. Different frequencies produce a beat pattern.
+  </footer>
+</div>
+
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  const params = { a1: 50, a2: 50, f1: 2, f2: 2, ph: 0 };
+  let t = 0, animId;
+
+  const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+
+  function clamp(v, mn, mx) { return Math.min(mx, Math.max(mn, v)); }
+
+  function linkPair(sliderId, numberId, key, min, max, step) {
+    const slider = document.getElementById(sliderId);
+    const number = document.getElementById(numberId);
+
+    slider.addEventListener('input', () => {
+      const v = clamp(parseFloat(slider.value), min, max);
+      params[key] = v;
+      number.value = v;
+    });
+
+    number.addEventListener('input', () => {
+      let v = parseFloat(number.value);
+      if (isNaN(v)) return;
+      v = clamp(v, min, max);
+      params[key] = v;
+      slider.value = v;
+    });
+
+    number.addEventListener('change', () => {
+      let v = parseFloat(number.value);
+      if (isNaN(v)) v = min;
+      v = clamp(v, min, max);
+      params[key] = v;
+      number.value = v;
+      slider.value = v;
+    });
+  }
+
+  linkPair('a1', 'a1n', 'a1', 5, 90, 1);
+  linkPair('a2', 'a2n', 'a2', 5, 90, 1);
+  linkPair('f1', 'f1n', 'f1', 0.5, 6, 0.5);
+  linkPair('f2', 'f2n', 'f2', 0.5, 6, 0.5);
+  linkPair('ph', 'phn', 'ph', 0, 360, 1);
+
+  const presets = {
+    constructive:  { a1: 50, a2: 50, f1: 2, f2: 2, ph: 0 },
+    destructive:   { a1: 50, a2: 50, f1: 2, f2: 2, ph: 180 },
+    partial:       { a1: 50, a2: 50, f1: 2, f2: 2, ph: 90 },
+    beat:          { a1: 50, a2: 50, f1: 2, f2: 3, ph: 0 },
+    unequal:       { a1: 75, a2: 30, f1: 2, f2: 2, ph: 0 },
+  };
+
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const p = presets[btn.dataset.preset];
+      if (!p) return;
+      Object.assign(params, p);
+      ['a1','a2','f1','f2','ph'].forEach(k => {
+        document.getElementById(k).value = params[k];
+        document.getElementById(k + 'n').value = params[k];
+      });
+    });
+  });
+
+  function updateMode() {
+    const { f1, f2, ph } = params;
+    const label = document.getElementById('mode-name-text');
+    const badge = document.getElementById('mode-badge');
+    const phNorm = ((ph % 360) + 360) % 360;
+    const sameFreq = Math.abs(f1 - f2) < 0.01;
+
+    let mode, bg, col;
+    if (!sameFreq) {
+      mode = 'Beat frequency'; bg = 'var(--purple-bg)'; col = 'var(--purple-text)';
+    } else if (phNorm <= 30 || phNorm >= 330) {
+      mode = 'Constructive'; bg = 'var(--green-bg)'; col = 'var(--green-text)';
+    } else if (phNorm >= 150 && phNorm <= 210) {
+      mode = 'Destructive'; bg = 'var(--red-bg)'; col = 'var(--red-text)';
+    } else {
+      mode = 'Partial interference'; bg = 'var(--amber-bg)'; col = 'var(--amber-text)';
+    }
+    label.textContent = mode;
+    badge.textContent = mode;
+    badge.style.background = bg;
+    badge.style.color = col;
+  }
+
+  function draw() {
+    const dpr = window.devicePixelRatio || 1;
+    const w = canvas.offsetWidth || 680;
+    const h = Math.round(w * 0.38);
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.height = h + 'px';
+    ctx.scale(dpr, dpr);
+
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = isDark ? '#141412' : '#f9f9f8';
+    ctx.fillRect(0, 0, w, h);
+
+    const midY = h / 2;
+    const phRad = params.ph * Math.PI / 180;
+
+    const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
+    ctx.strokeStyle = gridColor;
+    ctx.lineWidth = 0.5;
+    ctx.setLineDash([]);
+    for (let i = -3; i <= 3; i++) {
+      const y = midY + i * 28;
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+    }
+
+    const N = w * 2;
+
+    function wave1(x) { return params.a1 * Math.sin(2 * Math.PI * params.f1 * (x / w) + t); }
+    function wave2(x) { return params.a2 * Math.sin(2 * Math.PI * params.f2 * (x / w) + t + phRad); }
+    function result(x) { return wave1(x) + wave2(x); }
+
+    function drawWave(fn, color, dashed, lw) {
+      ctx.beginPath();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = lw;
+      ctx.setLineDash(dashed ? [6, 5] : []);
+      for (let i = 0; i <= N; i++) {
+        const x = (i / N) * w;
+        const y = midY - fn(x);
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+
+    const blue = isDark ? '#5ba3e8' : '#378add';
+    const orange = isDark ? '#e8784e' : '#d85a30';
+    const green = isDark ? '#2dbf8e' : '#1d9e75';
+
+    drawWave(wave1, blue, false, 1.5);
+    drawWave(wave2, orange, true, 1.5);
+    drawWave(result, green, false, 2.5);
+
+    updateMode();
+    t += 0.03;
+    animId = requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', () => { cancelAnimationFrame(animId); draw(); });
+
+  draw();
+</script>
+</body>
+</html>

@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carpenter Bees and Soap Bubbles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+img { display: block; max-width: 100%; height: auto; }
+
+/* ── tokens ── */
+:root {
+  --ink:        #1a1916;
+  --ink2:       #5c5a54;
+  --ink3:       #8c8a84;
+  --page:       #faf9f6;
+  --surface:    #f2f0eb;
+  --accent:     #4a3fa0;   /* iridescent violet — the signature colour */
+  --accent2:    #2e8b72;   /* complementary teal-green */
+  --rule:       rgba(0,0,0,0.10);
+  --serif:      'Lora', Georgia, serif;
+  --sans:       'Inter', system-ui, sans-serif;
+  --col:        680px;     /* max prose width */
+  --wide:       900px;     /* max wide width */
+  --pad-x:      clamp(1.25rem, 5vw, 3rem);
+}
+
+/* ── base ── */
+html { font-size: 18px; scroll-behavior: smooth; }
+body {
+  font-family: var(--serif);
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--ink);
+  background: var(--page);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── iridescent hero header ── */
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(3rem, 8vw, 5.5rem) var(--pad-x) clamp(2rem, 5vw, 3.5rem);
+  background: #0d0b1a;
+  isolation: isolate;
+}
+
+/* layered shimmer — pure CSS, no images, references the thin-film physics */
+.hero::before, .hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.hero::before {
+  background:
+    radial-gradient(ellipse 120% 80% at 20% 60%, rgba(74,63,160,0.55) 0%, transparent 60%),
+    radial-gradient(ellipse 100% 70% at 80% 30%, rgba(46,139,114,0.45) 0%, transparent 55%),
+    radial-gradient(ellipse 80% 60% at 55% 80%, rgba(120,60,180,0.35) 0%, transparent 50%);
+  z-index: 0;
+}
+.hero::after {
+  background:
+    radial-gradient(ellipse 60% 40% at 70% 70%, rgba(0,180,220,0.18) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 35% at 30% 20%, rgba(200,140,255,0.14) 0%, transparent 50%);
+  z-index: 0;
+}
+
+.hero-inner { position: relative; z-index: 1; max-width: var(--wide); margin: 0 auto; }
+
+.eyebrow {
+  font-family: var(--sans);
+  font-size: 0.694rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+  margin-bottom: 1.25rem;
+}
+
+.hero h1 {
+  font-family: var(--serif);
+  font-size: clamp(1.8rem, 5.5vw, 3.4rem);
+  font-weight: 400;
+  line-height: 1.15;
+  color: #fff;
+  max-width: 18ch;
+  margin-bottom: 1.25rem;
+}
+
+.hero h1 em {
+  font-style: italic;
+  color: rgba(180,165,255,0.95);
+}
+
+.hero-lede {
+  font-family: var(--sans);
+  font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+  line-height: 1.6;
+  color: rgba(255,255,255,0.58);
+  max-width: 52ch;
+}
+
+/* ── page layout ── */
+.page { max-width: var(--wide); margin: 0 auto; padding: 0 var(--pad-x); }
+
+/* ── article body ── */
+article {
+  max-width: var(--col);
+  margin: 0 auto;
+  padding: clamp(2.5rem, 6vw, 4rem) 0 3rem;
+}
+
+article p {
+  margin-bottom: 1.5rem;
+  color: var(--ink);
+}
+
+article p:last-child { margin-bottom: 0; }
+
+/* drop cap on first paragraph */
+article > p:first-of-type::first-letter {
+  font-family: var(--serif);
+  font-size: 3.8em;
+  font-weight: 500;
+  line-height: 0.78;
+  float: left;
+  margin-right: 0.08em;
+  margin-top: 0.08em;
+  color: var(--accent);
+}
+
+em { color: var(--ink2); }
+
+/* ── section headings ── */
+.section-label {
+  font-family: var(--sans);
+  font-size: 0.694rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+  margin-top: 2.5rem;
+  display: block;
+}
+
+h2 {
+  font-family: var(--serif);
+  font-size: clamp(1.25rem, 3vw, 1.6rem);
+  font-weight: 400;
+  line-height: 1.3;
+  color: var(--ink);
+  margin-bottom: 1rem;
+}
+
+/* ── pullquote ── */
+.pullquote {
+  border-left: 2px solid var(--accent);
+  margin: 2.5rem 0;
+  padding: 0.5rem 0 0.5rem 1.5rem;
+}
+.pullquote p {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.15rem;
+  line-height: 1.6;
+  color: var(--ink2);
+  margin: 0;
+}
+.pullquote p::before { content: '\201C'; }
+.pullquote p::after  { content: '\201D'; }
+
+/* ── image layouts ── */
+.img-hero-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 0 calc(-1 * var(--pad-x));
+  background: #ffffff;
+}
+.img-hero-pair img {
+  width: 100%;
+  height: clamp(260px, 40vw, 420px);
+  object-fit: cover;
+  object-position: center top;
+  opacity: 0.92;
+}
+@media (max-width: 500px) {
+  .img-hero-pair { grid-template-columns: 1fr; }
+  .img-hero-pair img { height: 260px; }
+}
+
+.img-full {
+  margin: 2.5rem calc(-1 * var(--pad-x));
+}
+.img-full img {
+  width: 100%;
+  height: auto;
+  max-height: 380px;
+  object-fit: cover;
+}
+.img-caption {
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  color: var(--ink3);
+  text-align: center;
+  padding: 0.6rem var(--pad-x) 0;
+  line-height: 1.5;
+}
+
+.img-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 2rem 0;
+}
+.img-pair img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+@media (max-width: 480px) {
+  .img-pair { grid-template-columns: 1fr; }
+  .img-pair img { height: 200px; }
+}
+
+/* ── divider ── */
+.divider {
+  border: none;
+  border-top: 1px solid var(--rule);
+  margin: 2.5rem 0;
+}
+
+/* ── widget embed placeholder ── */
+.widget-embed {
+  background: var(--surface);
+  border: 0.5px solid rgba(0,0,0,0.12);
+  border-radius: 10px;
+  padding: 2rem;
+  margin: 2rem 0;
+  text-align: center;
+}
+.widget-embed p {
+  font-family: var(--sans);
+  font-size: 0.83rem;
+  color: var(--ink2);
+  margin: 0;
+  line-height: 1.5;
+}
+.widget-embed a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ── references ── */
+.references {
+  max-width: var(--col);
+  margin: 0 auto;
+  padding: 2.5rem 0 4rem;
+  border-top: 1px solid var(--rule);
+}
+.references h2 {
+  font-family: var(--sans);
+  font-size: 0.694rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  margin-bottom: 1.25rem;
+}
+.references ol {
+  padding-left: 1.25rem;
+  font-family: var(--sans);
+  font-size: 0.833rem;
+  line-height: 1.7;
+  color: var(--ink2);
+}
+.references li { margin-bottom: 0.75rem; }
+.references a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.references cite { font-style: italic; }
+
+/* ── footer ── */
+footer {
+  background: var(--surface);
+  border-top: 1px solid var(--rule);
+  padding: 2rem var(--pad-x);
+  text-align: center;
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  color: var(--ink3);
+}
+
+/* ── reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Hero ── -->
+<header class="hero" role="banner">
+  <div class="hero-inner">
+    <p class="eyebrow">Nature walk · Cubbon Park, Bengaluru</p>
+    <h1>Carpenter Bees and <em>Soap Bubbles</em></h1>
+    <p class="hero-lede">Decoding the mystery of iridescent wings — and the thin-film physics hiding in plain sight.</p>
+  </div>
+</header>
+
+<!-- ── Opening image pair ── -->
+<div class="page">
+  <div class="img-hero-pair" role="img" aria-label="Two photographs of a carpenter bee showing its iridescent wings">
+    <figure>
+      <img src="images/image4.png" alt="Carpenter bee at a distance, perched on a flower, showing its wings glinting in the sunlight">
+      <figcaption>Carpenter bee at a distance, perched on a flower, showing its wings glinting in the sunlight</figcaption>
+    </figure>
+    <figure>
+      <img src="images/image5.png" alt="Carpenter bee, close-up view showing wing iridescence">
+      <figcaption>Close-up view, showing wing iridescence</figcaption>
+    </figure>
+  </div>
+</div>
+
+<!-- ── Article body ── -->
+<div class="page">
+<article>
+
+  <p>Carpenter bees are one of the creatures I was ignorant of until I found one in Cubbon Park. Why are they called carpenter bees? Because they burrow into wood. In Cubbon Park, you can see their nests on the wooden sculptures near the bandstand — I see them every other day while commuting. When I first spotted one, I mistook it for a beetle, but the eyes, antennae, and legs reminded me of honeybees. It was the wings that caught my attention.
+From different angles, the wings show different shades of purple, blue, and green. I knew it was something called structural colour, but I wasn't sure what kind of structure it was.</p>
+
+
+  <p>So, recently at work, we were asked to develop a nature walk in Cubbon Park, in collaboration with Cubbon Walks, with a focus on physics — and carpenter bees were at the top of my list. Their wing colour is due to one of my favourite physical phenomena, interference, thin-film interference to be exact. </p>
+
+  <hr class="divider">
+
+  <span class="section-label">The physics</span>
+  <h2>What is thin-film interference?</h2>
+
+  <p>To understand thin-film interference, let's take one term at a time. What are thin films? As the name suggests, they are films that are really thin — around hundreds of nanometres. Examples we might see every day include the layer of oil on a puddle after rain, or a soap bubble. What's common between these two? They are iridescent: their colours shift when you look at them from oblique angles or when they are illuminated at an angle. They look like they have trapped a rainbow.</p>
+
+  <p>That's where interference comes in. To put it simply, interference is when a wave overlaps with another wave of the same wavelength. If their crests and troughs line up — if they are in phase — they amplify each other: constructive interference. If they are out of phase, they cancel each other out: destructive interference. In a thin film, when light falls on it, some reflects from the top surface, while the rest travels through and reflects from the bottom surface. Those two reflected rays then interfere with each other. Depending on the thickness of the film and the angle of the light, different wavelengths (colours) get amplified or cancelled — and that's why the colour you see changes as you shift your angle.</p>
+
+  <!-- widget embed slot -->
+  <div class="widget-embed" role="complementary" aria-label="Interactive thin-film interference demo">
+    <p>To better understand the phenomenon, play around with the interactive thin-film interference widget built to accompany this article. Adjust wavelength, film thickness, refractive index, and angle to see how the interference pattern changes in real time.</p>
+  </div>
+
+  <!-- full-width image: widget screenshot / diagram -->
+  <div class="img-full">
+    <img src="images/image3.png" alt="Screenshot of the interactive thin-film interference visualiser showing wave diagrams and a ray diagram">
+    <p class="img-caption">The thin-film interference visualiser — adjust angle, thickness, and refractive index to explore how colours emerge.</p>
+  </div>
+
+  <hr class="divider">
+
+  <span class="section-label">Inside the wing</span>
+  <h2>How does this happen in a carpenter bee's wing?</h2>
+
+  <p>Luckily, I found a paper answering this question. It was by Stavenga et al. (2023), examining <em>Xylocopa latipes</em> (the genus name <em>Xylocopa</em> means "wood-cutter"), a carpenter bee species found in Southeast Asia. The one we have in Cubbon Park might be <em>Xylocopa tenuiscapa</em>, based on what I could gather from iNaturalist.</p>
+
+  <p>In the paper, an electron micrograph shows the cross-section of the carpenter bee wing. Carpenter bee wings are made of chitin, a strong polysaccharide that makes up the exoskeleton of all insects. The wing looks dark because of a pigment called melanin. The micrograph reveals that this melanin is not distributed uniformly, but in distinct striations, approximately 100 nm thick, with different regions containing varying amounts of melanin.</p>
+
+  <p>When the melanin content of chitin changes, the refractive index also changes — giving the wing sheets of thin films with different refractive indices stacked on top of each other. A stack of really durable soap bubbles.</p>
+  
+
+  <div class="img-pair" role="img" aria-label="Electron micrographs of carpenter bee wing cross-sections showing chitin layering">
+    <figure>
+      <img src="images/image1.png" alt="Soap bubble showing iridescence">
+      <figcaption>Soap bubble showing iridescence</figcaption>
+    </figure>
+    <figure>
+      <img src="images/image2.png" alt="Electron micrograph showing layered chitin structure of carpenter bee wing at higher magnification">
+      <figcaption>Electron micrograph showing layered chitin structure of carpenter bee wing Stavenga et.al 2023 </figcaption>
+    </figure>
+  </div>
+
+  <hr class="divider">
+
+  <span class="section-label">Putting it together</span>
+  <h2>Why the colour shifts</h2>
+
+  <p>When light falls on the wing at oblique angles, some reflects from the top surface while some travels through and reflects from one of the underlying layers. Because the light travels different distances through the wing, the outgoing rays have a phase difference — and whether that difference produces constructive or destructive interference depends on both the thickness of each layer and the angle of incidence.</p>
+
+  <p>The key constraint: the film thickness must be comparable to the wavelength of visible light, roughly 400–700 nm. If the layers are too thin or too thick, iridescence disappears entirely. Carpenter bee wings sit right in that window, which is why the shimmer is so vivid.</p>
+
+  <p>Next time you see a carpenter bee with shiny wings, you'll know exactly why — and perhaps you'll find yourself tilting your head to chase the colour as it shifts.</p>
+
+</article>
+
+<!-- ── References ── -->
+<section class="references" aria-label="References">
+  <h2>References</h2>
+  <ol>
+    <li>Stavenga, D. G., Kats, K., &amp; Leertouwer, H. L. (2023). Polarized iridescence of the tropical carpenter bee, <cite>Xylocopa latipes</cite>. <cite>Journal of Comparative Physiology A</cite>, <em>209</em>(6), 877–883.</li>
+    <li>Check out this beautiful video on thin-film interference: <a href="https://www.youtube.com/watch?v=WTxDyYHaYAI" target="_blank" rel="noopener">Thin film interference and the beauty of soap bubbles</a></li>
+  </ol>
+</section>
+
+</div><!-- /.page -->
+
+<footer>
+  <p>Written by Litralson Eluvathingal, June 2026 &nbsp;</p>
+</footer>
+
+</body>
+</html>
