@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thin Film Interference Visualiser</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #ffffff;
+  --bg2:       #f5f5f3;
+  --bg3:       #efefec;
+  --text:      #1a1a18;
+  --text2:     #6b6b67;
+  --text3:     #9a9994;
+  --border:    rgba(0,0,0,0.09);
+  --border2:   rgba(0,0,0,0.17);
+  --radius:    8px;
+  --radius-lg: 12px;
+  --blue:      #378add;
+  --green-bg:  #eaf3de; --green-text: #3b6d11;
+  --red-bg:    #fcebeb; --red-text:   #a32d2d;
+  --amber-bg:  #faeeda; --amber-text: #854f0b;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:       #1c1c1a;
+    --bg2:      #252523;
+    --bg3:      #2e2e2b;
+    --text:     #f0efeb;
+    --text2:    #9a9994;
+    --text3:    #6b6b67;
+    --border:   rgba(255,255,255,0.08);
+    --border2:  rgba(255,255,255,0.16);
+    --blue:     #5ba3e8;
+    --green-bg: #173404; --green-text: #c0dd97;
+    --red-bg:   #501313; --red-text:   #f09595;
+    --amber-bg: #412402; --amber-text: #fac775;
+  }
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 1.5rem 1rem 2rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+.wrap { width: 100%; max-width: 860px; }
+
+h1 { font-size: 20px; font-weight: 500; letter-spacing: -.2px; margin-bottom: 4px; }
+.sub { font-size: 13px; color: var(--text2); margin-bottom: 1.25rem; line-height: 1.55; }
+
+.canvas-card {
+  border: 0.5px solid var(--border2);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--bg2);
+  margin-bottom: 12px;
+}
+canvas { display: block; width: 100%; }
+
+/* result bar */
+.result-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  background: var(--bg2);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  align-items: start;
+}
+.metric { font-size: 12px; color: var(--text2); line-height: 1.5; }
+.metric .val { display: block; font-size: 15px; font-weight: 500; color: var(--text); margin-top: 2px; }
+.badge-wrap { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; }
+.badge { display: inline-block; padding: 3px 12px; border-radius: var(--radius); font-size: 12px; font-weight: 500; }
+.explain {
+  font-size: 12px; color: var(--text2); line-height: 1.6;
+  grid-column: 1 / -1;
+  border-top: 0.5px solid var(--border);
+  padding-top: 10px; margin-top: 4px;
+}
+
+/* controls */
+.controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+@media (max-width: 540px) { .controls { grid-template-columns: 1fr; } }
+
+.ctrl-card {
+  background: var(--bg2); border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg); padding: 12px 14px;
+}
+.ctrl-card h3 {
+  font-size: 11px; font-weight: 500; color: var(--text2);
+  text-transform: uppercase; letter-spacing: .06em; margin-bottom: 11px;
+}
+.row { display: flex; align-items: center; gap: 7px; margin-bottom: 9px; }
+.row:last-child { margin-bottom: 0; }
+.row label { font-size: 12px; color: var(--text2); width: 108px; flex-shrink: 0; }
+.row input[type="range"] {
+  flex: 1; min-width: 0; height: 4px;
+  -webkit-appearance: none; appearance: none;
+  background: var(--border2); border-radius: 2px; outline: none; cursor: pointer;
+}
+.row input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 15px; height: 15px; border-radius: 50%;
+  background: var(--text); cursor: pointer;
+  border: 2px solid var(--bg); box-shadow: 0 0 0 1px var(--border2);
+}
+.row input[type="range"]::-moz-range-thumb {
+  width: 15px; height: 15px; border-radius: 50%;
+  background: var(--text); cursor: pointer; border: 2px solid var(--bg);
+}
+.row input[type="number"] {
+  width: 58px; flex-shrink: 0; font-size: 12px; font-family: inherit;
+  background: var(--bg); color: var(--text);
+  border: 0.5px solid var(--border2); border-radius: var(--radius);
+  padding: 3px 6px; text-align: right; outline: none; -moz-appearance: textfield;
+}
+.row input[type="number"]::-webkit-inner-spin-button,
+.row input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+.row input[type="number"]:focus { border-color: var(--blue); box-shadow: 0 0 0 2px rgba(55,138,221,.18); }
+.unit { font-size: 11px; color: var(--text3); width: 18px; flex-shrink: 0; }
+
+.preset-card {
+  background: var(--bg2); border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg); padding: 12px 14px; margin-bottom: 10px;
+}
+.preset-card h3 {
+  font-size: 11px; font-weight: 500; color: var(--text2);
+  text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px;
+}
+.presets { display: flex; gap: 7px; flex-wrap: wrap; }
+.pbtn {
+  font-size: 12px; font-family: inherit;
+  background: var(--bg); color: var(--text);
+  border: 0.5px solid var(--border2); border-radius: var(--radius);
+  padding: 4px 11px; cursor: pointer; transition: background .12s;
+}
+.pbtn:hover { background: var(--bg3); }
+.pbtn:active { transform: scale(0.97); }
+
+footer {
+  font-size: 12px; color: var(--text3);
+  margin-top: 10px; line-height: 1.7;
+  padding-top: 10px; border-top: 0.5px solid var(--border);
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Thin film interference</h1>
+  <p class="sub">Light reflects from two surfaces of a thin film. The path difference and any phase flips at each boundary together determine whether the two reflected rays interfere constructively or destructively.</p>
+
+  <div class="canvas-card">
+    <canvas id="cv"></canvas>
+  </div>
+
+  <div class="result-bar">
+    <div class="metric">Refraction angle θ₂<br><span class="val" id="r-th2">—</span></div>
+    <div class="metric">λ in film<br><span class="val" id="r-wlf">—</span></div>
+    <div class="metric">Optical path diff.<br><span class="val" id="r-opd">—</span></div>
+    <div class="metric">Phase difference<br><span class="val" id="r-ph">—</span></div>
+    <div class="badge-wrap">
+      <div style="font-size:11px;color:var(--text2);margin-bottom:4px">Interference</div>
+      <span class="badge" id="badge">—</span>
+    </div>
+    <div class="explain" id="explain">—</div>
+  </div>
+
+  <div class="controls">
+    <div class="ctrl-card">
+      <h3>Light</h3>
+      <div class="row">
+        <label>Wavelength λ</label>
+        <input type="range" id="wl"   min="380" max="700" value="550" step="1">
+        <input type="number" id="wln" min="380" max="700" value="550" step="1">
+        <span class="unit">nm</span>
+      </div>
+      <div class="row">
+        <label>Incident angle θ₁</label>
+        <input type="range" id="ang"   min="0" max="75" value="30" step="1">
+        <input type="number" id="angn" min="0" max="75" value="30" step="1">
+        <span class="unit">°</span>
+      </div>
+    </div>
+    <div class="ctrl-card">
+      <h3>Film &amp; substrate</h3>
+      <div class="row">
+        <label>Thickness d</label>
+        <input type="range" id="th"   min="0" max="800" value="180" step="1">
+        <input type="number" id="thn" min="0" max="800" value="180" step="1">
+        <span class="unit">nm</span>
+      </div>
+      <div class="row">
+        <label>Film index n₂</label>
+        <input type="range" id="n2"   min="1.00" max="3.00" value="1.50" step="0.01">
+        <input type="number" id="n2n" min="1.00" max="3.00" value="1.50" step="0.01">
+      </div>
+      <div class="row">
+        <label>Substrate index n₃</label>
+        <input type="range" id="n3"   min="1.00" max="3.00" value="1.52" step="0.01">
+        <input type="number" id="n3n" min="1.00" max="3.00" value="1.52" step="0.01">
+      </div>
+    </div>
+  </div>
+
+  <div class="preset-card">
+    <h3>Presets</h3>
+    <div class="presets">
+      <button class="pbtn" data-p="soap">Soap bubble</button>
+      <button class="pbtn" data-p="ar">Anti-reflection coat</button>
+      <button class="pbtn" data-p="oil">Oil on water</button>
+      <button class="pbtn" data-p="mirror">High-reflect coat</button>
+    </div>
+  </div>
+
+  <footer>
+    OPD = 2·n₂·d·cos θ₂ &nbsp;|&nbsp; Snell's law: n₁ sin θ₁ = n₂ sin θ₂ &nbsp;|&nbsp;
+    A ½λ phase flip occurs at each reflection where light enters a denser medium (n increases).
+  </footer>
+
+</div>
+<script>
+const PRESETS = {
+  soap:   { wl:550, ang:30, th:180, n2:1.33, n3:1.00 },
+  ar:     { wl:550, ang:0,  th:100, n2:1.38, n3:1.52 },
+  oil:    { wl:580, ang:30, th:300, n2:1.47, n3:1.33 },
+  mirror: { wl:550, ang:0,  th:59,  n2:2.35, n3:1.52 },
+};
+
+const $ = id => document.getElementById(id);
+const gv = id => parseFloat($(id).value);
+function clamp(v,a,b){ return Math.min(b,Math.max(a,v)); }
+
+function wlToRgb(wl) {
+  let r,g,b;
+  if      (wl>=380&&wl<440){r=(440-wl)/60;g=0;b=1;}
+  else if (wl<490){r=0;g=(wl-440)/50;b=1;}
+  else if (wl<510){r=0;g=1;b=(510-wl)/20;}
+  else if (wl<580){r=(wl-510)/70;g=1;b=0;}
+  else if (wl<645){r=1;g=(645-wl)/65;b=0;}
+  else            {r=1;g=0;b=0;}
+  let f=1;
+  if(wl>=380&&wl<420) f=0.3+0.7*(wl-380)/40;
+  return [Math.round(r*f*255),Math.round(g*f*255),Math.round(b*f*255)];
+}
+
+function link(sid, nid, min, max, dec) {
+  const s=$(sid), n=$(nid);
+  const fmt = v => dec ? v.toFixed(dec) : String(Math.round(v));
+  s.addEventListener('input', () => { n.value = fmt(parseFloat(s.value)); update(); });
+  n.addEventListener('input', () => {
+    let v=parseFloat(n.value); if(isNaN(v))return;
+    v=clamp(v,min,max); s.value=v; update();
+  });
+  n.addEventListener('change', () => {
+    let v=parseFloat(n.value); if(isNaN(v))v=min;
+    v=clamp(v,min,max); n.value=fmt(v); s.value=v; update();
+  });
+}
+link('wl','wln',380,700,0);
+link('ang','angn',0,75,0);
+link('th','thn',0,800,0);
+link('n2','n2n',1.0,3.0,2);
+link('n3','n3n',1.0,3.0,2);
+
+document.querySelectorAll('.pbtn').forEach(b => {
+  b.addEventListener('click', () => {
+    const p=PRESETS[b.dataset.p];
+    $('wl').value=p.wl;   $('wln').value=p.wl;
+    $('ang').value=p.ang; $('angn').value=p.ang;
+    $('th').value=p.th;   $('thn').value=p.th;
+    $('n2').value=p.n2;   $('n2n').value=p.n2.toFixed(2);
+    $('n3').value=p.n3;   $('n3n').value=p.n3.toFixed(2);
+    update();
+  });
+});
+
+/* ═══════════════════════════════════════════════════════
+   DRAW
+═══════════════════════════════════════════════════════ */
+function draw(wl, angDeg, d, n2, n3) {
+  const cv=$('cv'), ctx=cv.getContext('2d');
+  const dpr=window.devicePixelRatio||1;
+  const W=cv.offsetWidth||860;
+
+  /* --- layout --- */
+  const DIAG_W = Math.round(W * 0.56);
+  const WAVE_W = W - DIAG_W;
+  const H = 440;
+
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px';
+  ctx.scale(dpr,dpr);
+
+  const dark=matchMedia('(prefers-color-scheme:dark)').matches;
+  ctx.fillStyle = dark?'#1a1a18':'#f9f9f8';
+  ctx.fillRect(0,0,W,H);
+
+  const COL = {
+    txt:  dark?'rgba(255,255,255,0.75)':'rgba(0,0,0,0.65)',
+    txt2: dark?'rgba(255,255,255,0.42)':'rgba(0,0,0,0.38)',
+    bdr:  dark?'rgba(255,255,255,0.09)':'rgba(0,0,0,0.09)',
+    bdr2: dark?'rgba(255,255,255,0.18)':'rgba(0,0,0,0.18)',
+  };
+
+  const n1=1.0;
+  const [rC,gC,bC]=wlToRgb(wl);
+  const rayCol=`rgb(${rC},${gC},${bC})`;
+
+  /* --- Snell's law --- */
+  const th1=angDeg*Math.PI/180;
+  const sinTh2=clamp((n1/n2)*Math.sin(th1),-1,1);
+  const th2=Math.asin(sinTh2);
+  const sinTh3=clamp((n2/n3)*Math.sin(th2),-1,1);
+  const tir3=Math.abs(sinTh3)>=1;
+  const th3=tir3?Math.PI/2:Math.asin(sinTh3);
+
+  /* --- phase flip flags --- */
+  const r1flip = n2>n1;   // top surface: air→film
+  const r2flip = n3>n2;   // bottom surface: film→substrate
+
+  /* --- OPD --- */
+  const opd = 2*n2*d*Math.cos(th2);
+  const phaseFlips=(r1flip?0.5:0)+(r2flip?0.5:0);
+  const totalCycles=opd/wl+phaseFlips;
+  const fracCycle=totalCycles-Math.floor(totalCycles);
+  const phaseRad=fracCycle*2*Math.PI;
+  const resAmp=Math.abs(Math.cos(phaseRad/2));
+
+  /* ─────────────────────────────────────────
+     LEFT PANEL: ray diagram
+  ───────────────────────────────────────── */
+  const PAD_L=52, PAD_R=8;
+  const DW=DIAG_W-PAD_L-PAD_R;
+
+  /* layer heights — film gets a guaranteed visible band */
+  const filmPixMin=28, filmPixMax=120;
+  const filmH=Math.min(filmPixMax, Math.max(filmPixMin, d*0.13+filmPixMin));
+  const airH=Math.round(H*0.30);
+  const subH=H-airH-filmH;
+  const filmY=airH, subY=airH+filmH;
+
+  /* layer fills */
+  ctx.fillStyle=dark?'rgba(55,138,221,0.06)':'rgba(55,138,221,0.04)';
+  ctx.fillRect(PAD_L,0,DW,filmY);
+
+  const fAlpha=Math.min(0.55,Math.max(0.12,d/800*0.45+0.13));
+  ctx.fillStyle=`rgba(${rC},${gC},${bC},${fAlpha})`;
+  ctx.fillRect(PAD_L,filmY,DW,filmH);
+
+  ctx.fillStyle=dark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.04)';
+  ctx.fillRect(PAD_L,subY,DW,subH);
+
+  /* layer borders */
+  ctx.strokeStyle=COL.bdr2; ctx.lineWidth=0.5; ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(PAD_L,filmY); ctx.lineTo(PAD_L+DW,filmY); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(PAD_L,subY);  ctx.lineTo(PAD_L+DW,subY);  ctx.stroke();
+
+  /* layer labels — vertically centred */
+  ctx.font='11px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif';
+  ctx.textAlign='start'; ctx.fillStyle=COL.txt2;
+  ctx.fillText('Air  (n₁ = 1.00)',                              PAD_L+8, airH/2+4);
+  ctx.fillText(`Film  (n₂ = ${n2.toFixed(2)},  d = ${Math.round(d)} nm)`,
+                                                                PAD_L+8, filmY+filmH/2+4);
+  ctx.fillText(`Substrate  (n₃ = ${n3.toFixed(2)})`,           PAD_L+8, subY+Math.min(subH*0.35,36));
+
+  /* thickness arrow — only if film is tall enough */
+  if(filmH>=36){
+    const AX=PAD_L-18;
+    ctx.strokeStyle=COL.txt2; ctx.lineWidth=0.8;
+    ctx.beginPath(); ctx.moveTo(AX,filmY+6); ctx.lineTo(AX,subY-6); ctx.stroke();
+    [[AX,filmY],[AX,subY]].forEach(([x,y],i)=>{
+      const d2=i===0?1:-1;
+      ctx.beginPath();
+      ctx.moveTo(x-3,y+d2*5); ctx.lineTo(x,y+d2*0.5); ctx.lineTo(x+3,y+d2*5);
+      ctx.stroke();
+    });
+    ctx.fillStyle=COL.txt2; ctx.textAlign='center';
+    ctx.fillText('d',AX,filmY+filmH/2+4);
+  }
+
+  /* ── Ray geometry ──────────────────────────────────────────
+     A = incident hit point on top surface
+     B = where refracted ray hits bottom surface
+     C = where internally reflected ray returns to top surface
+     Ray 1: incident at A → reflects at A → exits to air (same angle th1, mirrored)
+     Ray 2: incident at A → refracts at A → hits B → reflects at B → returns to C →
+             refracts out of film at C (same angle th1 by Snell reversal)
+  ────────────────────────────────────────────────────────── */
+
+  // Place A at 38% of drawable width so there's room for reflected rays on both sides
+  const Ax = PAD_L + DW*0.38;
+  const Ay = filmY;
+
+  // Lateral shift from A to B inside the film
+  const dx_film = Math.tan(th2)*filmH;
+  const Bx = Ax + dx_film;
+  const By = subY;
+
+  // C is where the ray returns to the top surface after reflecting off B
+  // It travels back up at th2, shifting the same dx_film again
+  const Cx = Bx + dx_film;
+  const Cy = filmY;
+
+  // Incident ray origin — comes from upper-left at angle th1 from normal
+  const incLen = airH / Math.cos(th1);
+  const incStartX = Ax - Math.tan(th1)*airH;
+  const incStartY = 0;
+
+  // Reflected ray 1 exits upward to the right at th1 (law of reflection)
+  const r1EndX = Ax + Math.tan(th1)*airH;
+  const r1EndY = 0;
+
+  // Ray 2 exits C upward to the right at th1
+  const r2EndX = Cx + Math.tan(th1)*airH;
+  const r2EndY = 0;
+
+  // Transmitted ray from B downward into substrate at th3
+  const transEndX = Bx + Math.tan(th3)*subH*0.7;
+  const transEndY = subY + subH*0.7;
+
+  /* draw helpers */
+  function seg(x1,y1,x2,y2,color,alpha,lw,dash){
+    ctx.save();
+    ctx.globalAlpha=alpha; ctx.strokeStyle=color; ctx.lineWidth=lw;
+    ctx.setLineDash(dash||[]);
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    ctx.restore();
+  }
+
+  /* arrowhead: tip at (tx,ty), pointing in direction (dx,dy) */
+  function arrowTip(tx,ty,dx,dy,color,alpha,size){
+    const len=Math.hypot(dx,dy);
+    if(len<1e-9)return;
+    const ux=dx/len, uy=dy/len;
+    const s=size||8;
+    ctx.save();
+    ctx.globalAlpha=alpha; ctx.fillStyle=color;
+    ctx.beginPath();
+    ctx.moveTo(tx,ty);
+    ctx.lineTo(tx-s*ux+s*0.4*(-uy), ty-s*uy+s*0.4*ux);
+    ctx.lineTo(tx-s*ux-s*0.4*(-uy), ty-s*uy-s*0.4*ux);
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
+
+  /* ── draw rays ── */
+
+  // 1. Incident ray (full opacity, weight 2)
+  seg(incStartX,incStartY,Ax,Ay, rayCol,0.95,2);
+  // arrowhead midway along incident ray pointing toward A
+  {
+    const mx=(incStartX+Ax)/2, my=(incStartY+Ay)/2;
+    arrowTip(mx,my, Ax-incStartX,Ay-incStartY, rayCol,0.95,8);
+  }
+
+  // 2. Reflected ray 1 from top surface (full opacity, weight 2)
+  seg(Ax,Ay,r1EndX,r1EndY, rayCol,0.92,2);
+  {
+    const mx=(Ax+r1EndX)/2, my=(Ay+r1EndY)/2;
+    arrowTip(mx,my, r1EndX-Ax,r1EndY-Ay, rayCol,0.92,8);
+  }
+
+  // 3a. Refracted ray inside film: A→B (medium opacity, weight 1.5)
+  seg(Ax,Ay,Bx,By, rayCol,0.60,1.5);
+
+  // 3b. Internally reflected ray: B→C (medium opacity, weight 1.5)
+  seg(Bx,By,Cx,Cy, rayCol,0.60,1.5);
+
+  // 4. Exiting reflected ray 2: C upward (medium opacity, weight 1.5)
+  seg(Cx,Cy,r2EndX,r2EndY, rayCol,0.72,1.5);
+  {
+    const mx=(Cx+r2EndX)/2, my=(Cy+r2EndY)/2;
+    arrowTip(mx,my, r2EndX-Cx,r2EndY-Cy, rayCol,0.72,8);
+  }
+
+  // 5. Transmitted ray into substrate (dashed, low opacity)
+  if(!tir3){
+    seg(Bx,By,transEndX,transEndY, rayCol,0.28,1,[5,4]);
+  }
+
+  /* ── phase-flip dots ── */
+  function flipDot(x,y,flip){
+    ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2);
+    ctx.fillStyle=flip?'#E24B4A':'#2dbf8e';
+    ctx.globalAlpha=0.92; ctx.fill(); ctx.globalAlpha=1;
+    ctx.strokeStyle=dark?'#1a1a18':'#fff'; ctx.lineWidth=1.2; ctx.stroke();
+  }
+  flipDot(Ax,Ay,r1flip);   // top surface
+  flipDot(Bx,By,r2flip);   // bottom surface
+
+  /* ── normal line at A (dashed, short) ── */
+  const normLen=28;
+  ctx.setLineDash([4,4]); ctx.strokeStyle=COL.bdr2; ctx.lineWidth=0.8;
+  ctx.beginPath(); ctx.moveTo(Ax,Ay-normLen); ctx.lineTo(Ax,Ay+normLen); ctx.stroke();
+  ctx.setLineDash([]);
+
+  /* ── angle arcs at A, drawn clearly separate from dots ── */
+  function arc(cx,cy,r,a0,a1,ccw,label,lx,ly){
+    ctx.strokeStyle=COL.txt2; ctx.lineWidth=0.9; ctx.setLineDash([]);
+    ctx.beginPath(); ctx.arc(cx,cy,r,a0,a1,ccw); ctx.stroke();
+    ctx.fillStyle=COL.txt2;
+    ctx.font='10px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText(label,lx,ly);
+  }
+
+  if(angDeg>1){
+    const R=26;
+    // θ₁ left of normal (incident side)
+    arc(Ax,Ay, R, -Math.PI/2-th1, -Math.PI/2, false, 'θ₁',
+        Ax-(R+12)*Math.sin(th1/2), Ay-(R+12)*Math.cos(th1/2));
+    // θ₁ right of normal (reflected ray 1 side)
+    arc(Ax,Ay, R, -Math.PI/2, -Math.PI/2+th1, false, 'θ₁',
+        Ax+(R+12)*Math.sin(th1/2), Ay-(R+12)*Math.cos(th1/2));
+  }
+  if(angDeg>1 && th2>0.02 && filmH>34){
+    // θ₂ drawn inside film below A — use a slightly offset centre to clear the dot
+    const R2=24;
+    const arcCy=Ay+R2+4;
+    arc(Ax,arcCy, R2, Math.PI/2, Math.PI/2+th2, false, 'θ₂',
+        Ax+(R2+12)*Math.sin(th2/2), arcCy+(R2+10)*Math.cos(th2/2)-R2);
+  }
+
+  /* ── ray labels ── */
+  ctx.font='10px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif';
+  ctx.fillStyle=COL.txt2;
+
+  // "Incident" — left of the incoming ray, near midpoint
+  {
+    const mx=(incStartX+Ax)/2-6, my=(incStartY+Ay)/2;
+    ctx.textAlign='end';
+    ctx.fillText('Incident',mx,my);
+  }
+  // "Reflected (1)" — near the top, right of ray 1
+  {
+    const lx=r1EndX+4, ly=18;
+    ctx.textAlign='start';
+    ctx.fillText('Reflected (1)',lx,ly);
+  }
+  // "Reflected (2)" — near the top, right of ray 2, shifted down to avoid overlap
+  {
+    const lx=r2EndX+4, ly=32;
+    ctx.textAlign='start';
+    ctx.fillText('Reflected (2)',lx,ly);
+  }
+  // "Transmitted" — near end of transmitted ray
+  if(!tir3 && transEndY<H-8){
+    ctx.textAlign='start';
+    ctx.fillText('Transmitted',transEndX+4,transEndY-4);
+  }
+
+  /* ─────────────────────────────────────────
+     RIGHT PANEL: wave diagram
+  ───────────────────────────────────────── */
+  const WX=DIAG_W;
+  ctx.strokeStyle=COL.bdr2; ctx.lineWidth=0.5; ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(WX,0); ctx.lineTo(WX,H); ctx.stroke();
+
+  const WPX=WX+14;
+  const WPW=WAVE_W-28;
+
+  /* three equal rows */
+  const rowH=H/3;
+  const row1Y=rowH*0.5;
+  const row2Y=rowH*1.5;
+  const row3Y=rowH*2.5;
+  const ampH=Math.min(44,rowH*0.36);
+  const CYCLES=2.5, PTS=280;
+
+  /* mid-line for each row */
+  [row1Y,row2Y,row3Y].forEach(my=>{
+    ctx.strokeStyle=COL.bdr; ctx.lineWidth=0.5;
+    ctx.beginPath(); ctx.moveTo(WPX,my); ctx.lineTo(WPX+WPW,my); ctx.stroke();
+  });
+
+  /* wave labels — above each row, centred */
+  ctx.font='10.5px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif';
+  ctx.fillStyle=COL.txt2; ctx.textAlign='center';
+  ctx.fillText('Ray 1  (reflected from top surface)',    WPX+WPW/2, row1Y-ampH-12);
+  ctx.fillText('Ray 2  (reflected from bottom surface)', WPX+WPW/2, row2Y-ampH-12);
+  ctx.fillText('Resultant',                              WPX+WPW/2, row3Y-ampH-12);
+
+  /* draw a clean sinusoid — resultant uses proper superposition */
+  function drawWave(midY, phase, color, alpha, ampScale){
+    ctx.beginPath();
+    ctx.strokeStyle=color; ctx.lineWidth=2; ctx.globalAlpha=alpha; ctx.setLineDash([]);
+    for(let i=0;i<=PTS;i++){
+      const x=WPX+(i/PTS)*WPW;
+      const y=midY - ampScale*ampH*Math.sin(2*Math.PI*CYCLES*(i/PTS)+phase);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.stroke(); ctx.globalAlpha=1;
+  }
+
+  // Ray 1 at phase=0, amplitude=1
+  drawWave(row1Y, 0,        rayCol, 0.90, 1.0);
+  // Ray 2 at the computed phase offset, amplitude=1
+  drawWave(row2Y, phaseRad, rayCol, 0.65, 1.0);
+  // Resultant: A_res·sin(ωt + φ_res) where A_res = 2·cos(Δφ/2), phase_res = Δφ/2
+  // This is the exact analytic superposition of sin(ωt)+sin(ωt+Δφ)
+  drawWave(row3Y, phaseRad/2, rayCol, Math.max(0.25,resAmp), Math.min(1,resAmp)*2);
+
+  /* phase difference annotation between row1 and row2 */
+  const phaseDegStr=(fracCycle*360).toFixed(0);
+
+  /* labels below resultant */
+  ctx.font='10.5px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif';
+  ctx.fillStyle=COL.txt2; ctx.textAlign='center';
+  ctx.fillText(`A = ${(2*resAmp).toFixed(2)} × single ray`,  WPX+WPW/2, row3Y+ampH+14);
+  ctx.fillText(`Δφ = ${phaseDegStr}°`,                        WPX+WPW/2, row3Y+ampH+27);
+
+  /* legend — bottom of wave panel, two items side by side */
+  const legY=H-16;
+  const legItems=[['#E24B4A','½λ phase flip'],['#2dbf8e','No phase flip']];
+  const legTotalW=legItems.length*110;
+  const legStartX=WPX+(WPW-legTotalW)/2;
+  legItems.forEach(([c,lbl],i)=>{
+    const lx=legStartX+i*110;
+    ctx.beginPath(); ctx.arc(lx+5,legY,4,0,Math.PI*2);
+    ctx.fillStyle=c; ctx.globalAlpha=0.9; ctx.fill(); ctx.globalAlpha=1;
+    ctx.fillStyle=COL.txt2;
+    ctx.font='10px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif';
+    ctx.textAlign='start';
+    ctx.fillText(lbl,lx+13,legY+4);
+  });
+
+  return { th2, opd, fracCycle, resAmp, r1flip, r2flip };
+}
+
+/* ── update metrics ── */
+function update(){
+  const wl=gv('wl'), ang=gv('ang'), d=gv('th'), n2=gv('n2'), n3=gv('n3');
+  const { th2, opd, fracCycle, resAmp, r1flip, r2flip } = draw(wl,ang,d,n2,n3);
+
+  $('r-th2').textContent=(th2*180/Math.PI).toFixed(1)+'°';
+  $('r-wlf').textContent=(wl/n2).toFixed(1)+' nm';
+  $('r-opd').textContent=opd.toFixed(1)+' nm';
+  $('r-ph').textContent=(fracCycle*360).toFixed(0)+'°';
+
+  const isC=resAmp>0.85, isD=resAmp<0.15;
+  const ph=(fracCycle*360).toFixed(0);
+  let mode,bg,col,expl;
+  if(isC){
+    mode='Constructive'; bg='var(--green-bg)'; col='var(--green-text)';
+    expl=`Δφ = ${ph}° — the reflected rays arrive nearly in phase and reinforce each other. This wavelength appears bright in reflection.`;
+  } else if(isD){
+    mode='Destructive'; bg='var(--red-bg)'; col='var(--red-text)';
+    expl=`Δφ = ${ph}° — the reflected rays arrive nearly out of phase and cancel. This wavelength is suppressed in reflection.`;
+  } else {
+    mode='Partial'; bg='var(--amber-bg)'; col='var(--amber-text)';
+    const flips=[r1flip?'top surface':'',r2flip?'bottom surface':''].filter(Boolean).join(' & ')||'none';
+    expl=`Δφ = ${ph}°, resultant amplitude = ${(2*resAmp).toFixed(2)}× a single ray. Phase flips at: ${flips}.`;
+  }
+  const bd=$('badge');
+  bd.textContent=mode; bd.style.background=bg; bd.style.color=col;
+  $('explain').textContent=expl;
+}
+
+window.addEventListener('resize',update);
+update();
+</script>
+</body>
+</html>
