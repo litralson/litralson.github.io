@@ -331,14 +331,14 @@ h2 {
 .pullquote p::after  { content: '\201D'; }
 
 /* ── image layouts ── */
-.img-hero-pair {
+.img-hero-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 12px;
   margin: 0 calc(-1 * var(--pad-x));
   background: #ffffff;
 }
-.img-hero-pair img {
+.img-hero-grid img {
   width: 100%;
   height: clamp(260px, 40vw, 420px);
   object-fit: cover;
@@ -346,8 +346,8 @@ h2 {
   opacity: 0.92;
 }
 @media (max-width: 500px) {
-  .img-hero-pair { grid-template-columns: 1fr; }
-  .img-hero-pair img { height: 260px; }
+  .img-hero-grid { grid-template-columns: 1fr; }
+  .img-hero-grid img { height: 260px; }
 }
 
 .img-full {
@@ -372,7 +372,7 @@ h2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-  margin: 2rem 0;
+  margin: 1rem 0;
 }
 .img-pair img {
   width: 100%;
@@ -490,14 +490,21 @@ footer {
 <!-- ── Opening image pair ── -->
  <br> </br>
 <div class="page">
-  <div class="img-hero-pair" role="img" aria-label="Two photographs of a carpenter bee showing its iridescent wings">
-    <figure>
-      <img src="images/image4.png" alt="Carpenter bee at a distance, perched on a flower, showing its wings glinting in the sunlight">
-      <figcaption style="font-size: 0.75em;">Carpenter bee at a distance, perched on a flower, showing its wings glinting in the sunlight</figcaption>
+  <div class="img-hero-grid" role="img" aria-label="Two photographs of a carpenter bee showing its iridescent wings">
+     <!-- <figure> 
+      <img src="images/image4.png" width=100% height=100% alt="Carpenter bee on a flower">
+     </figure>  -->
+     <figure> 
+      <img src="images/Dead_carpenter_bee.jpeg" width=100% height=100% alt="Dead carpenter bee in a palm">
+      <figcaption style="font-size: 0.75em;">An almost dead carpenter bee found in Cubbon Park</figcaption>
     </figure>
     <figure>
-      <img src="images/image5.png" alt="Carpenter bee, close-up view showing wing iridescence">
+      <img src="images/Carpenter bee in a flower.jpeg" width="1800" height="1800" alt="Carpenter bee, close-up view showing wing iridescence">
       <figcaption style="font-size: 0.75em;">Close-up view, showing wing iridescence</figcaption>
+    </figure>
+    <figure> 
+      <img src="bubble_low_res.gif" alt="Soap bubble showing iridescence" width=100% height=100%>
+      <figcaption style="font-size: 0.75em;">A soap bubble showing iridescence</figcaption>
     </figure>
   </div>
 </div>
