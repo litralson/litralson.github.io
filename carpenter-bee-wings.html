@@ -354,10 +354,13 @@ h2 {
   margin: 2.5rem calc(-1 * var(--pad-x));
 }
 .img-full img {
-  width: 100%;
-  height: auto;
-  max-height: 380px;
+  width: 50%;
+  height: 50%;
+  /* max-height: 380px; */
   object-fit: cover;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 .img-caption {
   font-family: var(--sans);
@@ -577,14 +580,10 @@ footer {
   <p>When the melanin content of chitin changes, the refractive index also changes — giving the wing sheets of thin films with different refractive indices stacked on top of each other. A stack of really durable soap bubbles.</p>
   
 
-  <div class="img-pair" role="img" aria-label="Electron micrographs of carpenter bee wing cross-sections showing chitin layering">
-    <figure>
-      <img src="images/image1.png" alt="Soap bubble showing iridescence">
-      <figcaption style="font-size: 0.75em;">Soap bubble showing iridescence</figcaption>
-    </figure>
+  <div class="img-full" role="img" aria-label="Electron micrograph of carpenter bee wing cross-sections showing chitin layering">
     <figure>
       <img src="images/image2.png" alt="Electron micrograph showing layered chitin structure of carpenter bee wing at higher magnification">
-      <figcaption style="font-size: 0.75em;">Electron micrograph showing layered chitin structure of carpenter bee wing <em>Stavenga et.al 2023.</em> </figcaption>
+      <figcaption style="font-size: 0.75em;">Electron micrograph showing layered chitin structure of carpenter bee wing <em>Stavenga et.al 2023.</em> Scale bar: 1 µm </figcaption>
     </figure>
   </div>
 
