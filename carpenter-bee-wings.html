@@ -375,11 +375,11 @@ h2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-  margin: 1rem 0;
+  margin: 2rem 0;
 }
 .img-pair img {
-  width: 100%;
-  height: 100%;
+  width: 70%;
+  height: 70%;
   object-fit: cover;
   border-radius: 4px;
 }
@@ -596,21 +596,47 @@ footer {
     with another wave of the same wavelength. If their peaks and valleys line up, if they are in phase and
      they will amplify each other. This is called constructive interference. But if the peak of a wave aligns with
      the valley of another, they are out of phase and they will cancel each other out. This is called destructive interference. 
-     In a thin-film, when light falls on it, some reflects from the top surface, while the rest travels through 
-     and reflects from the bottom surface. Those two reflected rays then interfere with each other. 
-     Depending on the thickness of the film and the angle of the light, different wavelengths (colours) 
-     get amplified or cancelled. This is why the colour you see changes as you shift your angle.</p>
-
-  <!-- widget embed slot -->
+    </p> 
+     <!-- widget embed slot -->
   <div class="widget-embed" role="complementary" aria-label="Interactive interference visualiser">
     <iframe src="wave-interference.html" width="100%" height="880"
   style="border:none; border-radius:10px;"></iframe>
     <p>To better understand the phenomenon, play around with the interactive interference widget. Try changing the phase difference and see how the interference type changes in real time.</p>
   </div>
+    <p> A great demonstration of this is the intereference pattern you get when you shine laser light on a hair strand. If you assume light as just a stream of particles, you would expect when the light hits on the hair strand you will get a shadow of the hair. 
+      But light is also a wave. When light falls on
+      the hair strand, the ones hitting the edges of the hair strand will bend around it, which is a phenomena called diffraction. You will only observe diffraction when the dimensions of the object is comparable to the wavelength of the wave  
+      interacting with it. You might have seen diffraction when water ripples bend around large rocks or other objects. The light waves coming out of the laser were in phase with each other and after diffracting around the hair strand,
+      different photons travel different distances to the screen and end up having different phases. Depending upon the location on the screen, the light waves either undergo constructive
+      or destructive interference. In the image below, you can observe a large central band and regularly spaced bright and dark bands on the sides. The bright nands 
+     are where the light undergoes constructive interference and the dark ones are where it undergoes destructive interference. </p> 
     <figure>
-      <img src="images/1280px-Thin_film_interference1.gif" width="50%" height="50%" align="center" alt="A diagram showing reflection of light from the upper and lower interfaces of the thin film">
+      <img src="images/Interference_pattern_20260619.png", alt="A image of an interference pattern produced by a hair strand when laser light falls on it.">
+      <figcaption style="font-size: 0.75em;"> The intereference pattern produced by a hair strand when laser light falls on it. Notice the dark spots, those are the areas where the light undergoes destructive interference and the bright bands are where it undergoes constructive interference.</figcaption>
+    </figure>
+    <p>
+     In a thin-film, when light falls on it, some reflects from the top surface, while the rest travels through 
+     and reflects from the bottom surface. Those two reflected rays then interfere with each other. 
+     Depending on the thickness of the film and the angle of the light, different wavelengths (colours) 
+     get amplified or cancelled. This is why the colour you see changes as you shift your angle.</p>
+     <div class="img-full" role="img" aria-label="Diagram showing reflection of light from the upper and lower interfaces of the thin film">
+    <figure>
+      <img src="images/1280px-Thin_film_interference1.gif" width="100%" height="100%" alt="A diagram showing reflection of light from the upper and lower interfaces of the thin film">
       <figcaption style="font-size: 0.75em;">When light gets reflected from the upper and lower surfaces of a thin film, there is difference in the path length traversed by the light. <a href="https://commons.wikimedia.org/wiki/File:Thin_film_interference1.gif">Chanli44 at English Wikipedia</a>, Public domain, via Wikimedia Commons </figcaption> 
     </figure>
+    </div>
+     <div class="img-pair" role="img" aria-label="Thin-film interference I encountered in the wild!">
+      <figure>
+        <img src="images/oil_film_on_a_puddle_view1.jpg" width="1800" height="1800" alt="Oil on water showing iridescence">
+        <figcaption style="font-size: 0.75em;">Oil film on water, showing iridescence.</figcaption>
+      </figure>
+      <figure>
+        <img src="images/oil_film_on_a_puddle_view2.jpg" width="1800" height="1800" alt="But when the same oil film was viewd at a different angle, the iridescence is gone">
+        <figcaption style="font-size: 0.75em;">When the same oil film was viewed at a different angle, the iridescence is almost gone.</figcaption>
+      </figure>
+    </div>
+
+
 
   <!-- full-width image: widget screenshot / diagram -->
     <!-- <div class="widget-embed" role="complementary" aria-label="Interactive thin-film interference visualiser">
@@ -619,6 +645,8 @@ footer {
     <p>The thin-film interference visualiser. Try adjusting angle, thickness, and refractive index to explore how colours emerge.</p>
   </div> -->
 
+  
+  
   <hr class="divider">
 
   
@@ -626,7 +654,7 @@ footer {
 
   <p>Luckily, I found a paper answering this question. It was by Stavenga et al. (2023), 
     examining <em>Xylocopa latipes</em> (the genus name <em>Xylocopa</em> means "wood-cutter"), 
-    a carpenter bee species found in Southeast Asia. The ones we have in Cubbon Park might be 
+    a carpenter bee species found in Southeast Asia. The one we have in Cubbon Park might be 
     <em>Xylocopa tenuiscapa</em>, based on what I could gather from iNaturalist. Since their wings look
     similar in iridescence, I'm assuming the underlying structures are the same.</p>
 
@@ -664,16 +692,7 @@ footer {
   <p>Next time you see a carpenter bee with shiny wings, you'll know exactly why, 
     and perhaps you'll find yourself tilting your head to chase the colour as it shifts.</p>
 
-    <div class="img-pair" role="img" aria-label="Thin-film interference I encountered in the wild!">
-      <figure>
-        <img src="images/oil_film_on_a_puddle_view1.jpg" width="1800" height="1800" alt="Oil on water showing iridescence">
-        <figcaption style="font-size: 0.75em;">Oil film on water, showing iridescence.</figcaption>
-      </figure>
-      <figure>
-        <img src="images/oil_film_on_a_puddle_view2.jpg" width="1800" height="1800" alt="But when the same oil film was viewd at a different angle, the iridescence is gone">
-        <figcaption style="font-size: 0.75em;">When the same oil film was viewed at a different angle, the iridescence is almost gone.</figcaption>
-      </figure>
-    </div>
+
 </article>
 
 <!-- ── References ── -->
@@ -683,6 +702,7 @@ footer {
     <li>Stavenga, D. G., Kats, K., &amp; Leertouwer, H. L. (2023). Polarized iridescence of the tropical carpenter bee, <cite>Xylocopa latipes</cite>. <cite>Journal of Comparative Physiology A</cite>, <em>209</em>(6), 877–883. <a href="https://doi.org/10.1007/s00359-022-01592-9" target="_blank" rel="noopener">https://doi.org/10.1007/s00359-022-01592-9</a></li>
     <li>Check out this beautiful video on thin-film interference: <a href="https://www.youtube.com/watch?v=WTxDyYHaYAI" target="_blank" rel="noopener">Thin film interference and the beauty of soap bubbles</a></li>
     <li>If you like making things, try out this Science Snack from Exploratorium: <a href="https://www.exploratorium.edu/snacks/iridescence-prints" target="_blank" rel="noopener">Iridescence Prints</a></li>
+    <li>In case you want to produce the interference pattern yourself, try out this experiment:</li>
   </ol>
 </section>
 
